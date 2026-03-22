@@ -1,0 +1,11 @@
+# CODEOWNERS
+
+# =========================
+# Global
+# =========================
+* @XavierSs21
+
+# =========================
+# CI/CD (GitHub Actions, workflows, configs)
+# =========================
+.github/ @XavierSs21

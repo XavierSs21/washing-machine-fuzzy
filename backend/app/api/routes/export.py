@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 import tempfile
-import os
 from app.core.fis.generator import generate_fis
 
 router = APIRouter()

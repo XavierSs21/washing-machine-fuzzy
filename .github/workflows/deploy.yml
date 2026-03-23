@@ -1,0 +1,41 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push:
+    name: Build + Push Docker Hub
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.backend
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wm-backend:latest
+
+      - name: Build & push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.frontend
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wm-frontend:latest
+
+      - name: Notify
+        run: |
+          echo "Deploy completado — $(date)"
+          echo "Backend: ${{ secrets.DOCKERHUB_USERNAME }}/wm-backend:latest"
+          echo "Frontend: ${{ secrets.DOCKERHUB_USERNAME }}/wm-frontend:latest"

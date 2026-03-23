@@ -2,7 +2,6 @@
 test_fuzzy.py — Unit tests del motor difuso.
 Cubre los 15 casos de caja negra del mega prompt.
 """
-import pytest
 from app.core.fuzzy.engine import FuzzyEngine
 
 engine = FuzzyEngine()

@@ -1,0 +1,99 @@
+"""
+engine.py — Motor principal del sistema difuso.
+
+Flujo:
+  1. build_variables()  → crea Antecedents + Consequents
+  2. build_rules()      → crea las 27 reglas IF-THEN
+  3. FuzzyEngine.run()  → fuzzifica, infiere, defuzzifica
+  4. Retorna dict con los 4 outputs numéricos por ciclo
+"""
+
+from skfuzzy import control as ctrl
+from app.core.fuzzy.variables import build_variables
+from app.core.fuzzy.rules import build_rules
+
+# Factor de compresión por ciclo (para la animación)
+COMPRESSION = {
+    "prelavado":    6,
+    "lavado":       4,
+    "enjuague":     5,
+    "centrifugado": 8,
+}
+
+
+class FuzzyEngine:
+    def __init__(self):
+        vars_ = build_variables()
+        self._inputs  = vars_["inputs"]
+        self._outputs = vars_["outputs"]
+        self._rules   = build_rules(self._inputs, self._outputs)
+
+        self._system = ctrl.ControlSystem(self._rules)
+
+    def run(self, tipo_ropa: float, nivel_suciedad: float, masa_ropa: float) -> dict:
+        """
+        Ejecuta el sistema difuso con las entradas del usuario.
+        Retorna un dict con los resultados para los 4 ciclos.
+
+        Los 4 ciclos comparten las mismas entradas pero cada uno tiene
+        sus propios factores de ajuste para simular el comportamiento
+        real de cada fase del lavado.
+        """
+        sim = ctrl.ControlSystemSimulation(self._system)
+        sim.input["tipo_ropa"]      = tipo_ropa
+        sim.input["nivel_suciedad"] = nivel_suciedad
+        sim.input["masa_ropa"]      = masa_ropa
+        sim.compute()
+
+        base_tc = sim.output["tiempo_ciclo"]
+        base_ta = sim.output["temperatura_agua"]
+        base_cd = sim.output["cantidad_detergente"]
+        base_va = sim.output["velocidad_agitacion"]
+
+        # Cada ciclo ajusta los outputs base según su naturaleza
+        cycles = {
+            "prelavado": {
+                "tiempo_ciclo":        round(base_tc * 0.5, 2),
+                "temperatura_agua":    round(base_ta * 0.7, 2),
+                "cantidad_detergente": round(base_cd * 0.3, 2),
+                "velocidad_agitacion": round(base_va * 0.6, 2),
+            },
+            "lavado": {
+                "tiempo_ciclo":        round(base_tc, 2),
+                "temperatura_agua":    round(base_ta, 2),
+                "cantidad_detergente": round(base_cd, 2),
+                "velocidad_agitacion": round(base_va, 2),
+            },
+            "enjuague": {
+                "tiempo_ciclo":        round(base_tc * 0.7, 2),
+                "temperatura_agua":    round(base_ta * 0.5, 2),   # agua más fría
+                "cantidad_detergente": 0.0,                         # sin detergente
+                "velocidad_agitacion": round(base_va * 0.7, 2),
+            },
+            "centrifugado": {
+                "tiempo_ciclo":        round(base_tc * 0.3, 2),
+                "temperatura_agua":    20.0,                        # sin calor
+                "cantidad_detergente": 0.0,
+                "velocidad_agitacion": round(min(base_va * 1.5, 1200), 2),  # max rpm
+            },
+        }
+
+        # Añadir duración de animación comprimida
+        for nombre, factor in COMPRESSION.items():
+            tc = cycles[nombre]["tiempo_ciclo"]
+            cycles[nombre]["duracion_animacion"] = round(tc / factor, 2)
+
+        return cycles
+
+    def get_membership_data(self) -> dict:
+        """Exporta los universos y funciones de membresía para los charts."""
+        data = {}
+        for name, var in {**self._inputs, **self._outputs}.items():
+            data[name] = {
+                "universe": var.universe.tolist(),
+                "terms": {
+                    term: var[term].mf.tolist()
+                    for term in var.terms
+                },
+            }
+        return data

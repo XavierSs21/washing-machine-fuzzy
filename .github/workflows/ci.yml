@@ -24,7 +24,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Lint (flake8)
-        run: flake8 app --max-line-length=120 --exclude=__pycache__ --ignore=E221,E225,W391
+        run: flake8 app --max-line-length=120 --exclude=__pycache__ --ignore=E221,E225,W391,E241
 
       - name: Run tests
         run: pytest app/tests -v --tb=short

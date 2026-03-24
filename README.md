@@ -197,7 +197,7 @@ POST /api/simulate
 
 | Miembro | Área |
 |---|---|
-| **Xavier** | Líder + DevOps + Motor difuso (engine, variables, rules) |
+| **Xavier** | DevOps + Motor difuso (engine, variables, rules) |
 | **Yess** | UI/UX + SVG lavadora + Panel de control + Ciclos |
 | **Guevara** | Backend + API + WebSocket + defuzz.py |
 | **Aaly** | Generador .fis + Charts + Tests unitarios |

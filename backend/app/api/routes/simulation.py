@@ -84,5 +84,4 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
             status_code=500,
             detail=f"El motor no retornó el campo esperado: {str(e)}"
         )
-        
         #

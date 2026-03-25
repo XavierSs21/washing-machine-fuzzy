@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -191,3 +190,4 @@ def test_websocket_json_invalido():
         ws.send_text("esto no es json {{{")
         response = ws.receive_json()
     assert "error" in response
+

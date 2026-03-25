@@ -1,9 +1,9 @@
-
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+
 
 # Health check
 def test_health():
@@ -11,6 +11,7 @@ def test_health():
     r = client.get("/health")
     assert r.status_code == 200
     assert r.json() == {"status": "ok"}
+
 
 # POST /api/simulate — casos válidos
 
@@ -69,8 +70,8 @@ def test_simulate_ropa_resistente():
 
     # Ropa más sucia y resistente debe tomar más tiempo total
     assert (
-        r_resistente.json()["tiempo_total"] >
-        r_delicada.json()["tiempo_total"]
+        r_resistente.json()["tiempo_total"]
+        > r_delicada.json()["tiempo_total"]
     )
 
 
@@ -84,17 +85,19 @@ def test_simulate_tiempo_total_es_suma_de_ciclos():
     assert r.status_code == 200
     data = r.json()
 
+    # W504 fix: operadores al inicio de línea
     suma = round(
-        data["prelavado"]["tiempo_ciclo"] +
-        data["lavado"]["tiempo_ciclo"] +
-        data["enjuague"]["tiempo_ciclo"] +
-        data["centrifugado"]["tiempo_ciclo"],
+        data["prelavado"]["tiempo_ciclo"]
+        + data["lavado"]["tiempo_ciclo"]
+        + data["enjuague"]["tiempo_ciclo"]
+        + data["centrifugado"]["tiempo_ciclo"],
         2
     )
     assert data["tiempo_total"] == suma
 
 
 # POST /api/simulate — casos inválidos
+
 def test_simulate_tipo_ropa_fuera_de_rango():
     """tipo_ropa > 100 debe retornar 422."""
     r = client.post("/api/simulate", json={
@@ -139,6 +142,7 @@ def test_simulate_body_vacio():
     r = client.post("/api/simulate", json={})
     assert r.status_code == 422
 
+
 # GET /api/cycles
 
 def test_get_cycles_retorna_lista():
@@ -155,9 +159,9 @@ def test_get_cycles_estructura():
     r = client.get("/api/cycles")
     assert r.status_code == 200
     for ciclo in r.json():
-        assert "id" in ciclo
-        assert "nombre" in ciclo
-        assert "color" in ciclo
+        assert "id"          in ciclo
+        assert "nombre"      in ciclo
+        assert "color"       in ciclo
         assert "descripcion" in ciclo
 
 
@@ -172,7 +176,6 @@ def test_get_cycles_ids_correctos():
 
 def test_websocket_emite_ticks():
     """El WebSocket debe emitir al menos un tick con la estructura correcta."""
-    # Primero obtenemos un resultado real del simulador
     sim = client.post("/api/simulate", json={
         "tipo_ropa": 50,
         "nivel_suciedad": 50,
@@ -181,13 +184,13 @@ def test_websocket_emite_ticks():
     assert sim.status_code == 200
 
     with client.websocket_connect("/api/ws/simulation") as ws:
-        ws.send_text(sim.text)  # mandamos el JSON de SimulationResponse
+        ws.send_text(sim.text)
         tick = ws.receive_json()
 
-        assert "ciclo" in tick
-        assert "progreso" in tick
+        assert "ciclo"               in tick
+        assert "progreso"            in tick
         assert "tiempo_restante_seg" in tick
-        assert "completado" in tick
+        assert "completado"          in tick
         assert tick["ciclo"] in ("prelavado", "lavado", "enjuague", "centrifugado")
         assert 0.0 <= tick["progreso"] <= 1.0
 

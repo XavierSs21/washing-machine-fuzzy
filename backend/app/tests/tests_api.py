@@ -155,9 +155,9 @@ def test_get_cycles_estructura():
     r = client.get("/api/cycles")
     assert r.status_code == 200
     for ciclo in r.json():
-        assert "id"          in ciclo
-        assert "nombre"      in ciclo
-        assert "color"       in ciclo
+        assert "id" in ciclo
+        assert "nombre" in ciclo
+        assert "color" in ciclo
         assert "descripcion" in ciclo
 
 
@@ -197,4 +197,4 @@ def test_websocket_json_invalido():
     with client.websocket_connect("/api/ws/simulation") as ws:
         ws.send_text("esto no es json {{{")
         response = ws.receive_json()
-        assert "error" in response
+    assert "error" in response

@@ -1,59 +1,88 @@
+
 import asyncio
 import json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from app.models.simulation import SimulationResponse
 
 router = APIRouter()
 
+CYCLES_METADATA = [
+    {"id": "prelavado",   "nombre": "Prelavado",   "color": "#378ADD", "descripcion": "Remojo inicial para aflojar suciedad."},
+    {"id": "lavado",      "nombre": "Lavado",      "color": "#1D9E75", "descripcion": "Ciclo principal con detergente."},
+    {"id": "enjuague",    "nombre": "Enjuague",    "color": "#7F77DD", "descripcion": "Elimina restos de jabón."},
+    {"id": "centrifugado","nombre": "Centrifugado","color": "#D85A30", "descripcion": "Extrae el agua de la ropa."},
+]
 
-@router.get("/cycles")
-def get_cycles():
-    """Retorna metadata de los 4 ciclos."""
-    return {
-        "cycles": [
-            {"id": "prelavado",    "label": "Prelavado",    "color": "#60a5fa", "order": 1},
-            {"id": "lavado",       "label": "Lavado",       "color": "#34d399", "order": 2},
-            {"id": "enjuague",     "label": "Enjuague",     "color": "#a78bfa", "order": 3},
-            {"id": "centrifugado", "label": "Centrifugado", "color": "#f472b6", "order": 4},
-        ]
-    }
+
+@router.get(
+    "/cycles",
+    summary="Obtener metadata de ciclos",
+    description="""
+Retorna la lista de los 4 ciclos del proceso de lavado con su nombre,
+color (hex) para el frontend y descripción breve. No requiere parámetros.
+""",
+)
+def get_cycles() -> list[dict]:
+   
+    return CYCLES_METADATA
 
 
 @router.websocket("/ws/simulation")
-async def simulation_ws(websocket: WebSocket):
-    """
-    WebSocket para streaming del estado de la simulación.
-    El frontend envía el JSON de SimulationResponse y este
-    endpoint emite ticks cada 500ms con el progreso de cada ciclo.
-    """
+async def websocket_simulation(websocket: WebSocket):
+   
     await websocket.accept()
+
     try:
         raw = await websocket.receive_text()
-        simulation_data = json.loads(raw)
 
-        cycle_order = ["prelavado", "lavado", "enjuague", "centrifugado"]
+        try:
+            data = SimulationResponse(**json.loads(raw))
+        except (json.JSONDecodeError, ValueError) as e:
+            await websocket.send_text(json.dumps({"error": f"JSON inválido: {str(e)}"}))
+            await websocket.close(code=1003)
+            return
 
-        for cycle_name in cycle_order:
-            cycle = simulation_data.get(cycle_name, {})
-            duration = cycle.get("duracion_animacion", 5)
-            ticks = max(int(duration / 0.5), 1)
+        # Cada ciclo es un CycleResult — accedemos a .tiempo_ciclo (minutos)
+        # y lo convertimos a segundos para la animación
+        ciclos = [
+            ("prelavado",    data.prelavado.tiempo_ciclo    * 60),
+            ("lavado",       data.lavado.tiempo_ciclo       * 60),
+            ("enjuague",     data.enjuague.tiempo_ciclo     * 60),
+            ("centrifugado", data.centrifugado.tiempo_ciclo * 60),
+        ]
 
-            for tick in range(ticks + 1):
-                progress = round((tick / ticks) * 100, 1)
-                await websocket.send_json({
-                    "cycle":    cycle_name,
-                    "progress": progress,
-                    "metrics": {
-                        "temperatura_agua":    cycle.get("temperatura_agua"),
-                        "velocidad_agitacion": cycle.get("velocidad_agitacion"),
-                        "cantidad_detergente": cycle.get("cantidad_detergente"),
-                    },
-                    "done": progress >= 100,
-                })
-                await asyncio.sleep(0.5)
+        tick = 0.5  # segundos entre cada emisión
 
-        await websocket.send_json({"cycle": "finished", "progress": 100, "done": True})
+        for nombre_ciclo, duracion_seg in ciclos:
+            if duracion_seg <= 0:
+                continue
+
+            elapsed = 0.0
+            while elapsed < duracion_seg:
+                progreso = min(elapsed / duracion_seg, 1.0)
+                restante = max(int(duracion_seg - elapsed), 0)
+
+                await websocket.send_text(json.dumps({
+                    "ciclo":               nombre_ciclo,
+                    "progreso":            round(progreso, 3),
+                    "tiempo_restante_seg": restante,
+                    "completado":          False,
+                }))
+
+                await asyncio.sleep(tick)
+                elapsed += tick
+
+        await websocket.send_text(json.dumps({
+            "ciclo":               "centrifugado",
+            "progreso":            1.0,
+            "tiempo_restante_seg": 0,
+            "completado":          True,
+        }))
 
     except WebSocketDisconnect:
-        pass
+        pass  # Cliente desconectado — comportamiento normal
     except Exception as e:
-        await websocket.send_json({"error": str(e)})
+        try:
+            await websocket.send_text(json.dumps({"error": f"Error interno: {str(e)}"}))
+        except Exception:
+            pass  # Si no se pudo notificar, simplemente cerramos

@@ -31,11 +31,11 @@ def test_simulate_ropa_delicada():
 
     # Cada ciclo debe tener todos los campos de CycleResult
     for ciclo in ("prelavado", "lavado", "enjuague", "centrifugado"):
-        assert "tiempo_ciclo"        in data[ciclo]
-        assert "temperatura_agua"    in data[ciclo]
+        assert "tiempo_ciclo" in data[ciclo]
+        assert "temperatura_agua" in data[ciclo]
         assert "cantidad_detergente" in data[ciclo]
         assert "velocidad_agitacion" in data[ciclo]
-        assert "duracion_animacion"  in data[ciclo]
+        assert "duracion_animacion" in data[ciclo]
 
     # tiempo_total debe ser la suma de los 4 ciclos
     assert "tiempo_total" in data
@@ -159,9 +159,9 @@ def test_get_cycles_estructura():
     r = client.get("/api/cycles")
     assert r.status_code == 200
     for ciclo in r.json():
-        assert "id"          in ciclo
-        assert "nombre"      in ciclo
-        assert "color"       in ciclo
+        assert "id" in ciclo
+        assert "nombre" in ciclo
+        assert "color" in ciclo
         assert "descripcion" in ciclo
 
 
@@ -187,10 +187,10 @@ def test_websocket_emite_ticks():
         ws.send_text(sim.text)
         tick = ws.receive_json()
 
-        assert "ciclo"               in tick
-        assert "progreso"            in tick
+        assert "ciclo" in tick
+        assert "progreso" in tick
         assert "tiempo_restante_seg" in tick
-        assert "completado"          in tick
+        assert "completado" in tick
         assert tick["ciclo"] in ("prelavado", "lavado", "enjuague", "centrifugado")
         assert 0.0 <= tick["progreso"] <= 1.0
 
@@ -201,3 +201,4 @@ def test_websocket_json_invalido():
         ws.send_text("esto no es json {{{")
         response = ws.receive_json()
     assert "error" in response
+    

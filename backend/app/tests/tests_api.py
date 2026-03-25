@@ -25,11 +25,9 @@ def test_simulate_ropa_delicada():
     assert r.status_code == 200
     data = r.json()
 
-    # Los 4 ciclos deben existir
     for ciclo in ("prelavado", "lavado", "enjuague", "centrifugado"):
         assert ciclo in data
 
-    # Cada ciclo debe tener todos los campos de CycleResult
     for ciclo in ("prelavado", "lavado", "enjuague", "centrifugado"):
         assert "tiempo_ciclo" in data[ciclo]
         assert "temperatura_agua" in data[ciclo]
@@ -37,7 +35,6 @@ def test_simulate_ropa_delicada():
         assert "velocidad_agitacion" in data[ciclo]
         assert "duracion_animacion" in data[ciclo]
 
-    # tiempo_total debe ser la suma de los 4 ciclos
     assert "tiempo_total" in data
     assert data["tiempo_total"] > 0
 
@@ -68,10 +65,9 @@ def test_simulate_ropa_resistente():
     assert r_delicada.status_code == 200
     assert r_resistente.status_code == 200
 
-    # Ropa más sucia y resistente debe tomar más tiempo total
     assert (
-        r_resistente.json()["tiempo_total"]
-        > r_delicada.json()["tiempo_total"]
+        r_resistente.json()["tiempo_total"] >
+        r_delicada.json()["tiempo_total"]
     )
 
 
@@ -85,12 +81,11 @@ def test_simulate_tiempo_total_es_suma_de_ciclos():
     assert r.status_code == 200
     data = r.json()
 
-    # W504 fix: operadores al inicio de línea
     suma = round(
-        data["prelavado"]["tiempo_ciclo"]
-        + data["lavado"]["tiempo_ciclo"]
-        + data["enjuague"]["tiempo_ciclo"]
-        + data["centrifugado"]["tiempo_ciclo"],
+        data["prelavado"]["tiempo_ciclo"] +
+        data["lavado"]["tiempo_ciclo"] +
+        data["enjuague"]["tiempo_ciclo"] +
+        data["centrifugado"]["tiempo_ciclo"],
         2
     )
     assert data["tiempo_total"] == suma
@@ -132,7 +127,6 @@ def test_simulate_campos_faltantes():
     """JSON sin campos requeridos debe retornar 422."""
     r = client.post("/api/simulate", json={
         "tipo_ropa": 50
-        # faltan nivel_suciedad y masa_ropa
     })
     assert r.status_code == 422
 

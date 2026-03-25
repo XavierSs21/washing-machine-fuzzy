@@ -184,10 +184,10 @@ def test_websocket_emite_ticks():
         ws.send_text(sim.text)  # mandamos el JSON de SimulationResponse
         tick = ws.receive_json()
 
-        assert "ciclo"               in tick
-        assert "progreso"            in tick
+        assert "ciclo" in tick
+        assert "progreso" in tick
         assert "tiempo_restante_seg" in tick
-        assert "completado"          in tick
+        assert "completado" in tick
         assert tick["ciclo"] in ("prelavado", "lavado", "enjuague", "centrifugado")
         assert 0.0 <= tick["progreso"] <= 1.0
 

@@ -66,10 +66,8 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
         centrifugado = to_cycle("centrifugado")
 
         tiempo_total = round(
-            prelavado.tiempo_ciclo +
-            lavado.tiempo_ciclo +
-            enjuague.tiempo_ciclo +
-            centrifugado.tiempo_ciclo,
+            prelavado.tiempo_ciclo + lavado.tiempo_ciclo +
+            enjuague.tiempo_ciclo + centrifugado.tiempo_ciclo,
             2
         )
 
@@ -86,3 +84,5 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
             status_code=500,
             detail=f"El motor no retornó el campo esperado: {str(e)}"
         )
+        
+        #

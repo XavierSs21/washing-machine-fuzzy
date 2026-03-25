@@ -191,3 +191,4 @@ def test_websocket_json_invalido():
         response = ws.receive_json()
     assert "error" in response
 
+#

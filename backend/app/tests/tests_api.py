@@ -64,11 +64,7 @@ def test_simulate_ropa_resistente():
 
     assert r_delicada.status_code == 200
     assert r_resistente.status_code == 200
-
-    assert (
-        r_resistente.json()["tiempo_total"] >
-        r_delicada.json()["tiempo_total"]
-    )
+    assert r_resistente.json()["tiempo_total"] > r_delicada.json()["tiempo_total"]
 
 
 def test_simulate_tiempo_total_es_suma_de_ciclos():
@@ -81,13 +77,13 @@ def test_simulate_tiempo_total_es_suma_de_ciclos():
     assert r.status_code == 200
     data = r.json()
 
-    suma = round(
-        data["prelavado"]["tiempo_ciclo"] +
-        data["lavado"]["tiempo_ciclo"] +
-        data["enjuague"]["tiempo_ciclo"] +
+    tiempos = [
+        data["prelavado"]["tiempo_ciclo"],
+        data["lavado"]["tiempo_ciclo"],
+        data["enjuague"]["tiempo_ciclo"],
         data["centrifugado"]["tiempo_ciclo"],
-        2
-    )
+    ]
+    suma = round(sum(tiempos), 2)
     assert data["tiempo_total"] == suma
 
 
@@ -195,4 +191,3 @@ def test_websocket_json_invalido():
         ws.send_text("esto no es json {{{")
         response = ws.receive_json()
     assert "error" in response
-    

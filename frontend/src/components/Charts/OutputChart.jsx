@@ -8,7 +8,7 @@ import {
   Tooltip,
   Legend
 } from "recharts";
-
+//
 function OutputChart({ simulationData }) {
 
   if (!simulationData) return null;

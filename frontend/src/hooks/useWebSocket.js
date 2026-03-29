@@ -64,7 +64,7 @@ export const useWebSocket = () => {
       console.warn('⚠️ WebSocket cerrado. Reconectando en 3s...')
       reconnectTimer.current = setTimeout(connect, 3000)
     }
-  }, [simulationResult])
+  }, [simulationResult, setCycle, setProgress, setMetrics, setIsRunning, setIsPaused])
 
   // Función para mandar mensajes al backend (pause, resume, etc.)
   const sendMessage = useCallback((msg) => {

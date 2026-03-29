@@ -62,8 +62,10 @@ export const useWebSocket = () => {
     ws.current.onclose = () => {
       if (!shouldReconnect.current) return
       console.warn('⚠️ WebSocket cerrado. Reconectando en 3s...')
-      reconnectTimer.current = setTimeout(connect, 3000)
-    }
+      reconnectTimer.current = setTimeout(() => {
+        connect();
+    }, 3000);
+    }   
   }, [simulationResult, setCycle, setProgress, setMetrics, setIsRunning, setIsPaused])
 
   // Función para mandar mensajes al backend (pause, resume, etc.)

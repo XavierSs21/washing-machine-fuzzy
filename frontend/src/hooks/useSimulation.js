@@ -29,7 +29,7 @@ export const useSimulation = () => {
       console.error('Error en simulación:', e)
       setIsRunning(false)
     }
-  }, [tipo_ropa, nivel_suciedad, masa_ropa])
+  }, [tipo_ropa, nivel_suciedad, masa_ropa, setSimulationResult, setIsRunning, setIsPaused])
 
   const pause = useCallback(() => {
     setIsPaused(true)

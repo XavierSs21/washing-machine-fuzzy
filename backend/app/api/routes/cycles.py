@@ -7,10 +7,22 @@ from app.models.simulation import SimulationResponse
 router = APIRouter()
 
 CYCLES_METADATA = [
-    {"id": "prelavado", "nombre": "Prelavado", "color": "#378ADD", "descripcion": "Remojo inicial para aflojar suciedad."},
-    {"id": "lavado", "nombre": "Lavado", "color": "#1D9E75", "descripcion": "Ciclo principal con detergente."},
-    {"id": "enjuague", "nombre": "Enjuague", "color": "#7F77DD", "descripcion": "Elimina restos de jabón."},
-    {"id": "centrifugado","nombre": "Centrifugado","color": "#D85A30", "descripcion": "Extrae el agua de la ropa."},
+    {
+        "id": "prelavado", "nombre": "Prelavado", "color": "#378ADD",
+        "descripcion": "Remojo inicial para aflojar suciedad."
+    },
+    {
+        "id": "lavado", "nombre": "Lavado", "color": "#1D9E75",
+        "descripcion": "Ciclo principal con detergente."
+    },
+    {
+        "id": "enjuague", "nombre": "Enjuague", "color": "#7F77DD",
+        "descripcion": "Elimina restos de jabón."
+    },
+    {
+        "id": "centrifugado", "nombre": "Centrifugado","color": "#D85A30",
+        "descripcion": "Extrae el agua de la ropa."
+    },
 ]
 
 

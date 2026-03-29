@@ -69,7 +69,9 @@ export const useWebSocket = () => {
     }   
   }, [simulationResult, setCycle, setProgress, setMetrics, setIsRunning, setIsPaused])
 
-  connectRef.current = connect;
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   // Función para mandar mensajes al backend (pause, resume, etc.)
   const sendMessage = useCallback((msg) => {

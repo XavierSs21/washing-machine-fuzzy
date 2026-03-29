@@ -85,3 +85,4 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
             detail=f"El motor no retornó el campo esperado: {str(e)}"
         )
         #
+        

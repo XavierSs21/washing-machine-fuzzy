@@ -9,6 +9,7 @@ export const useWebSocket = () => {
   const ws = useRef(null)
   const reconnectTimer = useRef(null)
   const shouldReconnect = useRef(true) // false cuando el usuario hace reset
+  const connectRef = useRef(null)
 
   const { setCycle, setProgress, setMetrics} = useCycleStore()
   const { setIsRunning, setIsPaused, simulationResult } = useSimulationStore()
@@ -63,10 +64,12 @@ export const useWebSocket = () => {
       if (!shouldReconnect.current) return
       console.warn('⚠️ WebSocket cerrado. Reconectando en 3s...')
       reconnectTimer.current = setTimeout(() => {
-        connect();
+        connectRef.current?.();
     }, 3000);
     }   
   }, [simulationResult, setCycle, setProgress, setMetrics, setIsRunning, setIsPaused])
+
+  connectRef.current = connect;
 
   // Función para mandar mensajes al backend (pause, resume, etc.)
   const sendMessage = useCallback((msg) => {

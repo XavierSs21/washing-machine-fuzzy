@@ -20,7 +20,7 @@ CYCLES_METADATA = [
         "descripcion": "Elimina restos de jabón."
     },
     {
-        "id": "centrifugado", "nombre": "Centrifugado","color": "#D85A30",
+        "id": "centrifugado", "nombre": "Centrifugado", "color": "#D85A30",
         "descripcion": "Extrae el agua de la ropa."
     },
 ]
@@ -41,7 +41,7 @@ def get_cycles() -> list[dict]:
 
 @router.websocket("/ws/simulation")
 async def websocket_simulation(websocket: WebSocket):
-   
+
     await websocket.accept()
 
     try:

@@ -33,16 +33,16 @@ export const useSimulation = () => {
 
   const pause = useCallback(() => {
     setIsPaused(true)
-  }, [])
+  }, [setIsPaused])
 
   const resume = useCallback(() => {
     setIsPaused(false)
-  }, [])
+  }, [setIsPaused])
 
   const reset = useCallback(() => {
     resetSimulation()
     resetCycle()
-  }, [])
+  }, [resetSimulation, resetCycle])
 
   return { start, pause, resume, reset }
 }

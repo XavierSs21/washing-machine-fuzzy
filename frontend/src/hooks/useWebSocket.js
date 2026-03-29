@@ -10,7 +10,7 @@ export const useWebSocket = () => {
   const reconnectTimer = useRef(null)
   const shouldReconnect = useRef(true) // false cuando el usuario hace reset
 
-  const { setCycle, setProgress, setMetrics, reset: resetCycle } = useCycleStore()
+  const { setCycle, setProgress, setMetrics} = useCycleStore()
   const { setIsRunning, setIsPaused, simulationResult } = useSimulationStore()
 
   const connect = useCallback(() => {
@@ -90,7 +90,7 @@ export const useWebSocket = () => {
       clearTimeout(reconnectTimer.current)
       ws.current?.close()
     }
-  }, [])
+  }, [connect])
 
   return { sendMessage, disconnect }
 }

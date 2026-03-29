@@ -22,7 +22,7 @@ El archivo generado se llama `U4_LD.fis`.
 """,
 )
 def export_fis() -> FileResponse:
-  
+
     try:
         fis_content = generate_fis()
     except Exception as e:

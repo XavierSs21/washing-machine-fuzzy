@@ -65,7 +65,8 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
         enjuague     = to_cycle("enjuague")
         centrifugado = to_cycle("centrifugado")
 
-        tiempo_total = round(prelavado.tiempo_ciclo + lavado.tiempo_ciclo + enjuague.tiempo_ciclo + centrifugado.tiempo_ciclo, 2)
+        t_total = prelavado.tiempo_ciclo + lavado.tiempo_ciclo + enjuague.tiempo_ciclo + centrifugado.tiempo_ciclo
+        tiempo_total = round(t_total, 2)
 
         return SimulationResponse(
             prelavado=prelavado,

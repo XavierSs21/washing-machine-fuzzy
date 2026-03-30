@@ -356,11 +356,7 @@ export default function App() {
 
   useEffect(() => {
     if (!isRunning || currentCycleIdx < 0) return;
-    if (currentCycleIdx >= CYCLES.length) {
-      setIsRunning(false);
-      setCurrentCycleIdx(-1);
-      return;
-    }
+    if (currentCycleIdx >= CYCLES.length) { setTimeout(() => { setIsRunning(false); setCurrentCycleIdx(-1); }, 0); return; }
     const cycleKey = CYCLES[currentCycleIdx];
     const duration = simResult?.[cycleKey]?.duracion_animacion * 1000 || 4000;
     let elapsed = 0;
@@ -462,7 +458,7 @@ export default function App() {
             <div style={{ fontSize: 10, color: "#444", fontFamily: "monospace", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16 }}>Configuration</div>
             <Slider label="Fabric Type" sublabel={ropaLabel} value={tipoRopa} min={0} max={100} onChange={setTipoRopa} color="#5C7AEA" unit="" />
             <Slider label="Soil Level" sublabel={sucLabel} value={suciedad} min={0} max={100} onChange={setSuciedad} color="#f0a030" unit="" />
-            <Slider label="Load Mass" sublabel={v => `kg`} value={masa} min={0} max={10} step={0.5} onChange={setMasa} color="#8B5CF6" unit=" kg" />
+            <Slider label="Load Mass" sublabel={_ => `kg`} value={masa} min={0} max={10} step={0.5} onChange={setMasa} color="#8B5CF6" unit=" kg" />
           </div>
 
           {/* Cycle results */}

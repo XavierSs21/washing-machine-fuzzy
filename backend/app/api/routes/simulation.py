@@ -30,7 +30,7 @@ tiempos recomendados para cada ciclo del proceso de lavado.
 """,
 )
 def simulate(request: SimulationRequest) -> SimulationResponse:
-   
+
     # Pydantic ya valida ge/le, pero dejamos esto para mensajes en español
     if not (0 <= request.tipo_ropa <= 100):
         raise HTTPException(status_code=422, detail="tipo_ropa debe estar entre 0 y 100.")
@@ -65,11 +65,8 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
         enjuague     = to_cycle("enjuague")
         centrifugado = to_cycle("centrifugado")
 
-        tiempo_total = round(
-            prelavado.tiempo_ciclo + lavado.tiempo_ciclo +
-            enjuague.tiempo_ciclo + centrifugado.tiempo_ciclo,
-            2
-        )
+        t_total = prelavado.tiempo_ciclo + lavado.tiempo_ciclo + enjuague.tiempo_ciclo + centrifugado.tiempo_ciclo
+        tiempo_total = round(t_total, 2)
 
         return SimulationResponse(
             prelavado=prelavado,
@@ -84,4 +81,3 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
             status_code=500,
             detail=f"El motor no retornó el campo esperado: {str(e)}"
         )
-        #

@@ -4,6 +4,11 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+
+import MembershipChart from './components/Charts/MembershipChart'
+import OutputChart from './components/Charts/OutputChart'
+import CycleChart from './components/Charts/CycleChart'
+
 function App() {
   const [count, setCount] = useState(0)
 
@@ -15,18 +20,35 @@ function App() {
           <img src={reactLogo} className="framework" alt="React logo" />
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
+
         <div>
-          <h1>Get started</h1>
+          <h1>Lavadora Inteligente Difusa</h1>
           <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+            Sistema difuso para simulación de ciclos de lavado
           </p>
         </div>
+
         <button
           className="counter"
           onClick={() => setCount((count) => count + 1)}
         >
           Count is {count}
         </button>
+
+        {/* GRÁFICAS */}
+
+        <h2>Funciones Difusas</h2>
+
+        <MembershipChart />
+
+        <h2>Resultados</h2>
+
+        <OutputChart />
+
+        <h2>Progreso del Ciclo</h2>
+
+        <CycleChart />
+
       </section>
 
       <div className="ticks"></div>
@@ -53,6 +75,7 @@ function App() {
             </li>
           </ul>
         </div>
+
         <div id="social">
           <svg className="icon" role="presentation" aria-hidden="true">
             <use href="/icons.svg#social-icon"></use>
@@ -113,6 +136,7 @@ function App() {
       </section>
 
       <div className="ticks"></div>
+
       <section id="spacer"></section>
     </>
   )

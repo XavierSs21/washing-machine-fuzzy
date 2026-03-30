@@ -6,6 +6,7 @@ Flujo:
   2. build_rules()      → 27 reglas como dicts
   3. FuzzyEngine.run()  → fuzzifica, infiere, defuzzifica
   4. Retorna dict con los 4 outputs numéricos por ciclo
+  add
 """
 
 import numpy as np

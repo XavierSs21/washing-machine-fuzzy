@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import simulation, cycles, export
 
+# ── FastAPI app setup
 app = FastAPI(
     title="Washing Machine Fuzzy Controller",
     description="Sistema de control difuso para lavadora con 4 ciclos",

@@ -3,6 +3,7 @@ generator.py — Genera archivo .fis compatible con MATLAB Fuzzy Logic Toolbox.
 
 El formato .fis es texto plano con secciones:
   [System], [Input1..N], [Output1..M], [Rules]
+  add
 """
 
 

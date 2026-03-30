@@ -8,7 +8,7 @@ def run(tipo, suciedad, masa):
     return engine.run(tipo_ropa=tipo, nivel_suciedad=suciedad, masa_ropa=masa)
 
 
-# ── Helpers
+# ── Helpers |
 def assert_range(value, low, high, name):
     assert low <= value <= high, f"{name}={value} fuera de [{low}, {high}]"
 
@@ -79,7 +79,7 @@ def test_CB09():
     assert r["lavado"]["velocidad_agitacion"] >= 700
 
 
-# ── CB10: delicada, baja, pesada
+# ── CB10: delicada, baja, pesada 
 def test_CB10():
     r = run(10, 10, 9)
     assert r["lavado"]["temperatura_agua"] < 50
@@ -119,7 +119,7 @@ def test_CB15():
     assert r["lavado"]["velocidad_agitacion"] >= 500
 
 
-# ── Estructura de salida
+# ── Estructura de salida 
 def test_output_structure():
     r = run(50, 50, 5)
     for cycle in ["prelavado", "lavado", "enjuague", "centrifugado"]:

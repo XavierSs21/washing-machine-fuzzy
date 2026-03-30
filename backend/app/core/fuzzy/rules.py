@@ -3,6 +3,7 @@ rules.py — Define las 27 reglas IF-THEN del sistema difuso.
 
 Cada regla es un dict con "antecedents" y "consequents" que mapean
 nombres de variables a nombres de términos lingüísticos.
+add
 """
 
 

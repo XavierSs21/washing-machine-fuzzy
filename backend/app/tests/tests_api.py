@@ -12,7 +12,7 @@ def test_health():
     assert r.json() == {"status": "ok"}
 
 
-# POST /api/simulate — casos válidos
+# POST /api/simulate — casos válidos y estructura de respuesta
 
 def test_simulate_ropa_delicada():
     """Ropa delicada: valores bajos generan tiempos cortos."""

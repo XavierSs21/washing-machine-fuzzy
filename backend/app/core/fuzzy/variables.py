@@ -4,6 +4,7 @@ variables.py — Define las variables de entrada/salida y funciones de membresí
 Implementación manual con numpy (sin scikit-fuzzy).
 Cada variable tiene un universo de discurso (array) y términos lingüísticos
 con funciones de membresía triangulares precalculadas.
+add
 """
 
 import numpy as np

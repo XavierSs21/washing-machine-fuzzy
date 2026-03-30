@@ -5,6 +5,7 @@ Estos métodos toman un universo de discurso (array de valores x) y una función
 de membresía (array de valores μ entre 0 y 1) y retornan un valor escalar.
 
 Estas funciones son para documentación, pruebas y comparación entre métodos.
+add
 """
 
 import numpy as np

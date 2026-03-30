@@ -14,39 +14,7 @@ Sistema de control difuso para lavadora con 4 ciclos de lavado, animación en ti
 
 ---
 
-## Inicio rapido segun tu sistema operativo
-
-| Sistema | Script a usar |
-|---|---|
-| Windows | `setup.ps1` |
-| WSL2 / Linux / Mac | `setup.sh` |
-
----
-
-## Inicio rapido — Windows
-
-### Prerrequisitos
-1. Instala [Docker Desktop](https://www.docker.com/products/docker-desktop/) y asegurate de que este corriendo (icono de ballena en la barra de tareas)
-2. Instala [Git](https://git-scm.com/download/win)
-
-### Levantar el proyecto
-```powershell
-git clone https://github.com/XavierSs21/washing-machine-fuzzy.git
-cd washing-machine-fuzzy
-git fetch origin
-git checkout dev
-git pull origin dev
-.\setup.ps1
-```
-
-Si PowerShell bloquea la ejecucion del script:
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-
----
-
-## Inicio rapido (WSL2 / Debian / Ubuntu)
+## Inicio rápido (WSL2 / Debian / Ubuntu)
 
 ### Prerrequisitos
 
@@ -199,8 +167,8 @@ POST /api/simulate
 |---|---|
 | **Xavier** | DevOps + Motor difuso (engine, variables, rules) |
 | **Yess** | UI/UX + SVG lavadora + Panel de control + Ciclos |
-| **Aaly** | Backend + API + WebSocket + defuzz.py |
-| **Guevara** | Generador .fis + Charts + Tests unitarios |
+| **Guevara** | Backend + API + WebSocket + defuzz.py |
+| **Aaly** | Generador .fis + Charts + Tests unitarios |
 | **Jesús** | Estado Zustand + Hooks + Integración API |
 | **Pedro** | Testing caja negra + Documentación |
 

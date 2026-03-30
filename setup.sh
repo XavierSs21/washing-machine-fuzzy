@@ -35,10 +35,10 @@ echo -e "  ✅ Git configurado como: $(git config --global user.name)"
 
 # ── 3. Levantar servicios con Docker Compose ──────────────────────────────────
 echo -e "\n${YELLOW}[3/5] Construyendo imágenes Docker (primera vez tarda ~3 min)...${NC}"
-docker compose -f docker/docker-compose.yml --project-directory . build
+docker compose -f docker/docker-compose.yml build
 
 echo -e "\n${YELLOW}[4/5] Levantando servicios...${NC}"
-docker compose -f docker/docker-compose.yml --project-directory . up -d
+docker compose -f docker/docker-compose.yml up -d
 
 # ── 4. Health check ───────────────────────────────────────────────────────────
 echo -e "\n${YELLOW}[5/5] Esperando que los servicios estén listos...${NC}"

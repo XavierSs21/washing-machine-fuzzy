@@ -433,10 +433,19 @@ function WashingMachineCanvas({ isRunning, isPaused, cycleProgress, currentCycle
       ctx.beginPath();
       ctx.moveTo(CX - 45, CY - 55);
       ctx.quadraticCurveTo(CX - 5, CY - 82, CX + 40, CY - 60);
+      ctx.moveTo(CX - 45, CY - 55);
+      ctx.quadraticCurveTo(CX - 5, CY - 82, CX + 40, CY - 60);
       ctx.strokeStyle = "rgba(255,255,255,0.1)";
       ctx.lineWidth = 7;
       ctx.lineCap = "round";
       ctx.stroke();
+
+      // progress arc
+      if (running) {
+        ctx.beginPath();
+        ctx.arc(CX, CY, R + 11, -Math.PI / 2, -Math.PI / 2 + (2 * Math.PI * progress / 100));
+        ctx.strokeStyle = cycle ? CYCLE_COLORS[cycle] : "#5C7AEA"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.stroke();
+      }
 
       // progress arc
       if (running) {

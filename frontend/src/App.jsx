@@ -34,7 +34,7 @@ function roundRect(ctx, x, y, w, h, rad, fill, stroke, sw) {
 
   // bottom
   ctx.lineTo(x + r[3], y + h);
-  ctx.arcTo(x, y + h, x, y + h - r[3], r[3]); // 🔥 AQUÍ ESTABA EL ERROR
+  ctx.arcTo(x, y + h, x, y + h - r[3], r[3]);
 
   // left
   ctx.lineTo(x, y + r[0]);

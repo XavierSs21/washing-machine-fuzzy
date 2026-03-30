@@ -381,13 +381,6 @@ function WashingMachineCanvas({ isRunning, isPaused, cycleProgress, currentCycle
       ctx.beginPath(); ctx.arc(CX, CY, 5, 0, Math.PI * 2); ctx.fillStyle = "#0d0d0d"; ctx.fill();
       ctx.beginPath(); ctx.arc(CX, CY, 2, 0, Math.PI * 2); ctx.fillStyle = "#555"; ctx.fill();
 
-      // progress arc
-      if (running) {
-        ctx.beginPath();
-        ctx.arc(CX, CY, R + 11, -Math.PI / 2, -Math.PI / 2 + (2 * Math.PI * progress / 100));
-        ctx.strokeStyle = cycle ? CYCLE_COLORS[cycle] : "#5C7AEA"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.stroke();
-      }
-
       // door open swing
       const angle = doorAngle.current * Math.PI / 60;
       const hingeX = CX - R;
@@ -438,12 +431,19 @@ function WashingMachineCanvas({ isRunning, isPaused, cycleProgress, currentCycle
 
       // ---- REFLEJO ----
       ctx.beginPath();
-      ctx.moveTo(CX - 50, CY - 65);
-      ctx.quadraticCurveTo(CX - 5, CY - 82, CX + 45, CY - 60);
+      ctx.moveTo(CX - 45, CY - 55);
+      ctx.quadraticCurveTo(CX - 5, CY - 82, CX + 40, CY - 60);
       ctx.strokeStyle = "rgba(255,255,255,0.1)";
       ctx.lineWidth = 7;
       ctx.lineCap = "round";
       ctx.stroke();
+
+      // progress arc
+      if (running) {
+        ctx.beginPath();
+        ctx.arc(CX, CY, R + 11, -Math.PI / 2, -Math.PI / 2 + (2 * Math.PI * progress / 100));
+        ctx.strokeStyle = cycle ? CYCLE_COLORS[cycle] : "#5C7AEA"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.stroke();
+      }
 
       // ---- HANDLE ----
       roundRect(ctx, CX + R + 5, CY - 20, 12, 36, 6, "#444", "#555", 0.5);
@@ -566,7 +566,7 @@ export default function App() {
     setCurrentCycleIdx(idx);
 
     const key = CYCLES[idx];
-    const dur = result[key].dur;
+    const dur = result[key].duracion_animacion || 4000;
     let elapsed = 0;
 
     simIntervalRef.current = setInterval(() => {
@@ -583,13 +583,41 @@ export default function App() {
     }, 80);
   }, []);
 
-  const handleStart = useCallback(() => {
-    const result = mockSimulate(tipoRopa, suciedad, masa);
-    setSimResult(result);
-    setIsRunning(true); setIsPaused(false); pausedRef.current = false;
-    setCycleProgress(0); setCurrentCycleIdx(0); setDoneCycles([]); setElapsedTime(0);
-    setTimeout(() => startCycle(0, result), 0);
-  }, [tipoRopa, suciedad, masa, mockSimulate, startCycle]);
+  const handleStart = useCallback(async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/simulate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          tipo_ropa: tipoRopa,
+          nivel_suciedad: suciedad,
+          masa_ropa: masa
+        })
+      });
+
+      const result = await response.json(); // ✅ SOLO ESTO
+
+      console.log("RESULT:", result);
+
+      setSimResult(result);
+
+      setIsRunning(true);
+      setIsPaused(false);
+      pausedRef.current = false;
+
+      setCycleProgress(0);
+      setCurrentCycleIdx(0);
+      setDoneCycles([]);
+      setElapsedTime(0);
+
+      startCycle(0, result);
+
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  }, [tipoRopa, suciedad, masa, startCycle]);
 
   const handlePause = () => {
     setIsPaused(p => { pausedRef.current = !p; return !p; });

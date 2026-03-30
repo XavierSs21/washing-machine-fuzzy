@@ -42,7 +42,7 @@ function WashingMachineSVG({ isRunning, progress, currentCycle, metrics }) {
     return () => cancelAnimationFrame(animRef.current);
   }, [isRunning, rpm]);
 
-  const cx = 200, cy = 210, r = 90;
+  const cx = 200, cy = 275, r = 90;
   const waterY = cy + r - (waterLevel * r * 2);
   const waterPath = `M ${cx - r} ${waterY} Q ${cx} ${waterY - 12} ${cx + r} ${waterY} L ${cx + r} ${cy + r} Q ${cx} ${cy + r + 4} ${cx - r} ${cy + r} Z`;
 
@@ -184,12 +184,12 @@ function WashingMachineSVG({ isRunning, progress, currentCycle, metrics }) {
         fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="8" strokeLinecap="round" />
 
       {/* Door handle */}
-      <rect x="345" y="195" width="14" height="40" rx="7" fill="#444" stroke="#555" strokeWidth="0.5" />
-      <rect x="347" y="200" width="4" height="30" rx="2" fill="rgba(255,255,255,0.1)" />
+      <rect x="302" y="260" width="14" height="40" rx="7" fill="#444" stroke="#555" strokeWidth="0.5" />
+      <rect x="309" y="264" width="4" height="30" rx="2" fill="rgba(255,255,255,0.1)" />
 
       {/* Bottom feet */}
-      <rect x="60" y="420" width="40" height="10" rx="5" fill="#222" stroke="#333" strokeWidth="0.5" />
-      <rect x="300" y="420" width="40" height="10" rx="5" fill="#222" stroke="#333" strokeWidth="0.5" />
+      <rect x="60" y="425" width="40" height="10" rx="5" fill="#222" stroke="#333" strokeWidth="0.5" />
+      <rect x="300" y="425" width="40" height="10" rx="5" fill="#222" stroke="#333" strokeWidth="0.5" />
 
       {/* Progress bar on door ring */}
       {isRunning && (
@@ -289,7 +289,6 @@ export default function App() {
   const sucLabel = v => v < 33 ? "Low" : v < 66 ? "Medium" : "High";
 
   const mockSimulate = useCallback((tr, ns, mr) => {
-    const base = (v, min, max) => min + ((v / 100) * (max - min));
     const heaviness = (tr * 0.4 + ns * 0.6) / 100;
     return {
       prelavado: {

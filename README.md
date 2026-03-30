@@ -199,8 +199,8 @@ POST /api/simulate
 |---|---|
 | **Xavier** | DevOps + Motor difuso (engine, variables, rules) |
 | **Yess** | UI/UX + SVG lavadora + Panel de control + Ciclos |
-| **Guevara** | Backend + API + WebSocket + defuzz.py |
-| **Aaly** | Generador .fis + Charts + Tests unitarios |
+| **Aaly** | Backend + API + WebSocket + defuzz.py |
+| **Guevara** | Generador .fis + Charts + Tests unitarios |
 | **Jesús** | Estado Zustand + Hooks + Integración API |
 | **Pedro** | Testing caja negra + Documentación |
 

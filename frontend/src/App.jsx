@@ -381,13 +381,6 @@ function WashingMachineCanvas({ isRunning, isPaused, cycleProgress, currentCycle
       ctx.beginPath(); ctx.arc(CX, CY, 5, 0, Math.PI * 2); ctx.fillStyle = "#0d0d0d"; ctx.fill();
       ctx.beginPath(); ctx.arc(CX, CY, 2, 0, Math.PI * 2); ctx.fillStyle = "#555"; ctx.fill();
 
-      // progress arc
-      if (running) {
-        ctx.beginPath();
-        ctx.arc(CX, CY, R + 11, -Math.PI / 2, -Math.PI / 2 + (2 * Math.PI * progress / 100));
-        ctx.strokeStyle = cycle ? CYCLE_COLORS[cycle] : "#5C7AEA"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.stroke();
-      }
-
       // door open swing
       const angle = doorAngle.current * Math.PI / 60;
       const hingeX = CX - R;
@@ -438,12 +431,19 @@ function WashingMachineCanvas({ isRunning, isPaused, cycleProgress, currentCycle
 
       // ---- REFLEJO ----
       ctx.beginPath();
-      ctx.moveTo(CX - 50, CY - 65);
-      ctx.quadraticCurveTo(CX - 5, CY - 82, CX + 45, CY - 60);
+      ctx.moveTo(CX - 45, CY - 55);
+      ctx.quadraticCurveTo(CX - 5, CY - 82, CX + 40, CY - 60);
       ctx.strokeStyle = "rgba(255,255,255,0.1)";
       ctx.lineWidth = 7;
       ctx.lineCap = "round";
       ctx.stroke();
+
+      // progress arc
+      if (running) {
+        ctx.beginPath();
+        ctx.arc(CX, CY, R + 11, -Math.PI / 2, -Math.PI / 2 + (2 * Math.PI * progress / 100));
+        ctx.strokeStyle = cycle ? CYCLE_COLORS[cycle] : "#5C7AEA"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.stroke();
+      }
 
       // ---- HANDLE ----
       roundRect(ctx, CX + R + 5, CY - 20, 12, 36, 6, "#444", "#555", 0.5);
@@ -544,16 +544,6 @@ export default function App() {
   const ropaLabel = v => v < 33 ? "Delicate" : v < 66 ? "Normal" : "Heavy";
   const sucLabel = v => v < 33 ? "Low" : v < 66 ? "Medium" : "High";
 
-  const mockSimulate = useCallback((tr, ns, mr) => {
-    const h = (tr * 0.4 + ns * 0.6) / 100;
-    return {
-      prelavado: { tiempo_ciclo: +(8 + h * 10).toFixed(1), temperatura_agua: +(20 + h * 20).toFixed(1), cantidad_detergente: +(5 + h * 15).toFixed(1), velocidad_agitacion: Math.round(100 + h * 200), dur: 3000 },
-      lavado: { tiempo_ciclo: +(20 + h * 20).toFixed(1), temperatura_agua: +(25 + h * 55).toFixed(1), cantidad_detergente: +(15 + h * 30).toFixed(1), velocidad_agitacion: Math.round(200 + h * 400), dur: 5000 },
-      enjuague: { tiempo_ciclo: +(10 + h * 8).toFixed(1), temperatura_agua: +(20 + h * 10).toFixed(1), cantidad_detergente: +(2 + h * 5).toFixed(1), velocidad_agitacion: Math.round(150 + h * 250), dur: 4500 },
-      centrifugado: { tiempo_ciclo: +(8 + h * 12).toFixed(1), temperatura_agua: 20, cantidad_detergente: 0, velocidad_agitacion: Math.round(400 + (mr / 10) * 800), dur: 4000 },
-      tiempo_total: +(46 + h * 50 + mr * 1.5).toFixed(1),
-    };
-  }, []);
 
   const startCycle = useCallback((idx, result) => {
     if (simIntervalRef.current) clearInterval(simIntervalRef.current);
@@ -566,7 +556,7 @@ export default function App() {
     setCurrentCycleIdx(idx);
 
     const key = CYCLES[idx];
-    const dur = result[key].dur;
+    const dur = result[key].duracion_animacion || 4000;
     let elapsed = 0;
 
     simIntervalRef.current = setInterval(() => {
@@ -583,13 +573,36 @@ export default function App() {
     }, 80);
   }, []);
 
-  const handleStart = useCallback(() => {
-    const result = mockSimulate(tipoRopa, suciedad, masa);
-    setSimResult(result);
-    setIsRunning(true); setIsPaused(false); pausedRef.current = false;
-    setCycleProgress(0); setCurrentCycleIdx(0); setDoneCycles([]); setElapsedTime(0);
-    setTimeout(() => startCycle(0, result), 0);
-  }, [tipoRopa, suciedad, masa, mockSimulate, startCycle]);
+  const handleStart = useCallback(async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/simulate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          tipo_ropa: tipoRopa,
+          nivel_suciedad: suciedad,
+          masa_ropa: masa
+        })
+      });
+
+      const result = await response.json();
+      console.log("RESULT:", result);
+      setSimResult(result);
+      setIsRunning(true);
+      setIsPaused(false);
+      pausedRef.current = false;
+      setCycleProgress(0);
+      setCurrentCycleIdx(0);
+      setDoneCycles([]);
+      setElapsedTime(0);
+
+      startCycle(0, result);
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  }, [tipoRopa, suciedad, masa, startCycle]); // ← ADD startCycle HERE
 
   const handlePause = () => {
     setIsPaused(p => { pausedRef.current = !p; return !p; });
@@ -683,7 +696,7 @@ export default function App() {
             <div style={{ fontSize: 10, color: "#666", fontFamily: "monospace", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14, fontWeight: 600 }}>Configuration</div>
             <Slider label="Fabric Type" sublabel={ropaLabel} value={tipoRopa} min={0} max={100} onChange={setTipoRopa} color="#5C7AEA" unit="" />
             <Slider label="Soil Level" sublabel={sucLabel} value={suciedad} min={0} max={100} onChange={setSuciedad} color="#f0a030" unit="" />
-            <Slider label="Load Mass" sublabel={_ => "kg"} value={masa} min={0} max={10} step={0.5} onChange={handleMasaChange} color="#8B5CF6" unit="" />
+            <Slider label="Load Mass" sublabel={() => "kg"} value={masa} min={0} max={10} step={0.5} onChange={handleMasaChange} color="#8B5CF6" unit="" />
           </div>
 
           <div style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "16px 16px 16px 18px", flex: 1, display: "flex", flexDirection: "column", overflow: "auto", minHeight: 0 }}>

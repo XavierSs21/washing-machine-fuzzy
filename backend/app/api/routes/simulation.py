@@ -3,11 +3,7 @@ from app.models.simulation import SimulationRequest, SimulationResponse, CycleRe
 from app.core.fuzzy.engine import FuzzyEngine
 
 router = APIRouter()
-
-try:
-    engine = FuzzyEngine()
-except Exception as e:
-    raise RuntimeError(f"No se pudo inicializar FuzzyEngine: {e}")
+engine = FuzzyEngine()
 
 
 @router.post(

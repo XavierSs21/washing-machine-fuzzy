@@ -1,52 +1,12 @@
-"""
-variables.py — Define las variables de entrada/salida y funciones de membresía.
-
-Implementación manual con numpy (sin scikit-fuzzy).
-Cada variable tiene un universo de discurso (array) y términos lingüísticos
-con funciones de membresía triangulares precalculadas.
-"""
-
 import numpy as np
+import skfuzzy as fuzz
+from skfuzzy import control as ctrl
 
 
-def trimf(x: np.ndarray, params: list) -> np.ndarray:
+def build_variables():
     """
-    Función de membresía triangular vectorizada.
-
-    Args:
-        x:      Array del universo de discurso.
-        params: [a, b, c] donde a <= b <= c son los vértices del triángulo.
-
-    Returns:
-        Array de grados de membresía (0–1).
-    """
-    a, b, c = params
-    mf = np.zeros_like(x, dtype=float)
-
-    # Rampa ascendente: a < x <= b
-    if b != a:
-        mask_up = (x > a) & (x <= b)
-        mf[mask_up] = (x[mask_up] - a) / (b - a)
-
-    # Rampa descendente: b < x < c
-    if c != b:
-        mask_down = (x > b) & (x < c)
-        mf[mask_down] = (c - x[mask_down]) / (c - b)
-
-    # Pico: x == b siempre es 1 (cubre caso a == b o b == c)
-    mf[x == b] = 1.0
-
-    return mf
-
-
-def build_variables() -> dict:
-    """
-    Construye todas las variables difusas con sus universos y MFs precalculadas.
-
-    Returns:
-        dict con claves "inputs" y "outputs", cada una conteniendo un dict
-        de variables. Cada variable es un dict con "universe" (np.ndarray)
-        y "terms" (dict de nombre → np.ndarray de membresía).
+    Define todas las variables de entrada y salida del sistema difuso.
+    Retorna un dict con los Antecedents y Consequents de skfuzzy.
     """
 
     # ── ENTRADAS ──────────────────────────────────────────────────────────

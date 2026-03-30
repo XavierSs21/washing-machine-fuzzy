@@ -1,47 +1,26 @@
-"""
-rules.py — Define las 27 reglas IF-THEN del sistema difuso.
-
-Cada regla es un dict con "antecedents" y "consequents" que mapean
-nombres de variables a nombres de términos lingüísticos.
-"""
+from skfuzzy import control as ctrl
 
 
-def build_rules() -> list:
+def build_rules(inputs: dict, outputs: dict) -> list:
     """
-    Retorna las 27 reglas como lista de dicts.
+    Define las 27+ reglas IF-THEN del sistema difuso.
+    Cubre las combinaciones de los 3 inputs (3x3x3 = 27 base).
 
-    Cada regla:
-        {
-            "antecedents": {
-                "tipo_ropa": str,
-                "nivel_suciedad": str,
-                "masa_ropa": str,
-            },
-            "consequents": {
-                "tiempo_ciclo": str,
-                "temperatura_agua": str,
-                "cantidad_detergente": str,
-                "velocidad_agitacion": str,
-            },
-        }
+    Cada regla sigue el patrón:
+        IF tipo_ropa IS x AND nivel_suciedad IS y AND masa_ropa IS z
+        THEN tiempo_ciclo IS t AND temperatura_agua IS T
+             AND cantidad_detergente IS d AND velocidad_agitacion IS v
     """
+    tr = inputs["tipo_ropa"]
+    ns = inputs["nivel_suciedad"]
+    mr = inputs["masa_ropa"]
 
-    def rule(tr, ns, mr, tc, ta, cd, va):
-        return {
-            "antecedents": {
-                "tipo_ropa": tr,
-                "nivel_suciedad": ns,
-                "masa_ropa": mr,
-            },
-            "consequents": {
-                "tiempo_ciclo": tc,
-                "temperatura_agua": ta,
-                "cantidad_detergente": cd,
-                "velocidad_agitacion": va,
-            },
-        }
+    tc = outputs["tiempo_ciclo"]
+    ta = outputs["temperatura_agua"]
+    cd = outputs["cantidad_detergente"]
+    va = outputs["velocidad_agitacion"]
 
-    return [
+    rules = [
         # ── DELICADA ──────────────────────────────────────────────────────
         rule("delicada", "baja", "ligera", "muy_corto", "fria", "poca", "baja"),
         rule("delicada", "media", "ligera", "corto", "tibia", "poca", "baja"),
@@ -89,3 +68,5 @@ def build_rules() -> list:
             "muy_alta",
         ),
     ]
+
+    return rules  # 27 reglas exactas, una por combinación

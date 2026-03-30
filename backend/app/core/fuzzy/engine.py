@@ -1,17 +1,16 @@
 """
-engine.py — Motor principal del sistema difuso (Mamdani).
+engine.py — Motor principal del sistema difuso.
 
 Flujo:
-  1. build_variables()  → universos + MFs precalculadas
-  2. build_rules()      → 27 reglas como dicts
+  1. build_variables()  → crea Antecedents + Consequents
+  2. build_rules()      → crea las 27 reglas IF-THEN
   3. FuzzyEngine.run()  → fuzzifica, infiere, defuzzifica
   4. Retorna dict con los 4 outputs numéricos por ciclo
 """
 
-import numpy as np
+from skfuzzy import control as ctrl
 from app.core.fuzzy.variables import build_variables
 from app.core.fuzzy.rules import build_rules
-from app.core.fuzzy.defuzz import centroid
 
 # Factor de compresión por ciclo (para la animación)
 COMPRESSION = {
@@ -25,29 +24,11 @@ COMPRESSION = {
 class FuzzyEngine:
     def __init__(self):
         vars_ = build_variables()
-        self._inputs = vars_["inputs"]
+        self._inputs  = vars_["inputs"]
         self._outputs = vars_["outputs"]
-        self._rules = build_rules()
+        self._rules   = build_rules(self._inputs, self._outputs)
 
-    def _fuzzify_inputs(self, values: dict) -> dict:
-        """
-        Calcula el grado de membresía de cada término para cada entrada.
-
-        Args:
-            values: {"tipo_ropa": float, "nivel_suciedad": float, "masa_ropa": float}
-
-        Returns:
-            {"tipo_ropa": {"delicada": float, "normal": float, ...}, ...}
-        """
-        result = {}
-        for var_name, value in values.items():
-            var = self._inputs[var_name]
-            result[var_name] = {}
-            for term_name, mf_array in var["terms"].items():
-                result[var_name][term_name] = float(
-                    np.interp(value, var["universe"], mf_array)
-                )
-        return result
+        self._system = ctrl.ControlSystem(self._rules)
 
     def run(self, tipo_ropa: float, nivel_suciedad: float, masa_ropa: float) -> dict:
         """
@@ -128,7 +109,7 @@ class FuzzyEngine:
                 "tiempo_ciclo": round(base_tc * 0.3, 2),
                 "temperatura_agua": 20.0,
                 "cantidad_detergente": 0.0,
-                "velocidad_agitacion": round(min(base_va * 1.5, 1200), 2),
+                "velocidad_agitacion": round(min(base_va * 1.5, 1200), 2),  # max rpm
             },
         }
 

@@ -1,8 +1,4 @@
-"""
-routes/export.py — Exportación del sistema difuso en formato .fis (MATLAB).
-"""
-
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi.responses import FileResponse
 import tempfile
 from app.core.fis.generator import generate_fis

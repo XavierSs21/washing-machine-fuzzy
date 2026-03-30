@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import WashingMachineCanvas from "frontend/src/components/WashingMachineCanvas.jsx"; // separa el canvas si quieres
-import Slider from "frontend/src/components/Slider.jsx"; // separa sliders si quieres
-import CycleBar from "frontend/src/components/CycleBar.jsx"; // separa ciclo visual
+import WashingMachineCanvas from "./WashingMachineCanvas"; // separa el canvas si quieres
+import Slider from "./Slider"; // separa sliders si quieres
+import CycleBar from "./CycleBar"; // separa ciclo visual
 
 const CYCLES = ["prelavado", "lavado", "enjuague", "centrifugado"];
 const CYCLE_LABELS = { prelavado: "Pre-wash", lavado: "Wash", enjuague: "Rinse", centrifugado: "Spin" };
@@ -25,8 +25,10 @@ export default function App() {
   const sucLabel = v => v < 33 ? "Low" : v < 66 ? "Medium" : "High";
 
   // --- START CYCLE RECURSIVO ---
-  const startCycle = useCallback((idx, result) => {
+  const startCycle = useCallback((idx) => {
+    if (!simResult) return; // asegúrate de tener resultados
     if (simIntervalRef.current) clearInterval(simIntervalRef.current);
+
     setCycleProgress(0);
     setCycleTransitionTick(t => t + 1);
 
@@ -38,29 +40,25 @@ export default function App() {
     }
 
     setCurrentCycleIdx(idx);
-
     const key = CYCLES[idx];
-    const dur = result[key]?.duracion_animacion || 4000;
+    const dur = simResult[key]?.duracion_animacion || 4000;
     let elapsed = 0;
 
     simIntervalRef.current = setInterval(() => {
-      elapsed += 80;
+      elapsed.current += 80;
       const prog = Math.min((elapsed / dur) * 100, 100);
       setCycleProgress(prog);
 
       if (prog >= 100) {
         clearInterval(simIntervalRef.current);
         setDoneCycles(d => [...d, key]);
-        setTimeout(() => {
-          startCycle(idx + 1, result);
-        }, 650);
+        setTimeout(() => startCycle(idx + 1), 650);
       }
     }, 80);
-  }, []);
+  }, [simResult]);
 
   // --- HANDLER PARA INICIAR ---
   const handleStart = () => {
-    // genera resultados de simulación ficticios según sliders
     const result = {};
     CYCLES.forEach(c => {
       result[c] = {
@@ -78,20 +76,17 @@ export default function App() {
     setCurrentCycleIdx(-1);
     setCycleProgress(0);
 
-    // iniciar primer ciclo
-    startCycle(0, result);
-    setDoorTrigger(prev => prev + 1); // abrir puerta al iniciar
+    startCycle(0); // inicia el primer ciclo
+    setDoorTrigger(prev => prev + 1);
   };
 
-  // --- PAUSE / RESUME ---
   const handlePause = () => {
     if (!isRunning) return;
+
     if (isPaused) {
-      // RESUME
       setIsPaused(false);
-      startCycle(currentCycleIdx, simResult);
+      startCycle(currentCycleIdx); // resume desde donde quedó
     } else {
-      // PAUSE
       setIsPaused(true);
       clearInterval(simIntervalRef.current);
     }

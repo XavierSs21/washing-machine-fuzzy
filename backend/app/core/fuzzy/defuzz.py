@@ -143,5 +143,5 @@ def compare_methods(universe: np.ndarray, membership: np.ndarray) -> dict:
     return {
         "centroid": centroid(universe, membership),
         "bisector": bisector(universe, membership),
-        "mom":      mom(universe, membership),
+        "mom": mom(universe, membership),
     }

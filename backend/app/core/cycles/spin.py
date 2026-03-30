@@ -1,5 +1,6 @@
 from .base import BaseCycle
 
+
 class SpinCycle(BaseCycle):
 
     def execute(self) -> dict:

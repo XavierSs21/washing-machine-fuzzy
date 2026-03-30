@@ -1,5 +1,6 @@
 from .base import BaseCycle
 
+
 class RinseCycle(BaseCycle):
 
     def execute(self) -> dict:

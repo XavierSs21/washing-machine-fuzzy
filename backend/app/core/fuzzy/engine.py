@@ -15,9 +15,9 @@ from app.core.fuzzy.defuzz import centroid
 
 # Factor de compresión por ciclo (para la animación)
 COMPRESSION = {
-    "prelavado":    6,
-    "lavado":       4,
-    "enjuague":     5,
+    "prelavado": 6,
+    "lavado": 4,
+    "enjuague": 5,
     "centrifugado": 8,
 }
 
@@ -55,11 +55,13 @@ class FuzzyEngine:
         Retorna un dict con los resultados para los 4 ciclos.
         """
         # 1. FUZZIFICACIÓN
-        memberships = self._fuzzify_inputs({
-            "tipo_ropa": tipo_ropa,
-            "nivel_suciedad": nivel_suciedad,
-            "masa_ropa": masa_ropa,
-        })
+        memberships = self._fuzzify_inputs(
+            {
+                "tipo_ropa": tipo_ropa,
+                "nivel_suciedad": nivel_suciedad,
+                "masa_ropa": masa_ropa,
+            }
+        )
 
         # Preparar arrays agregados para cada salida (inicializados en 0)
         aggregated = {}
@@ -105,26 +107,26 @@ class FuzzyEngine:
         # Cada ciclo ajusta los outputs base según su naturaleza
         cycles = {
             "prelavado": {
-                "tiempo_ciclo":        round(base_tc * 0.5, 2),
-                "temperatura_agua":    round(base_ta * 0.7, 2),
+                "tiempo_ciclo": round(base_tc * 0.5, 2),
+                "temperatura_agua": round(base_ta * 0.7, 2),
                 "cantidad_detergente": round(base_cd * 0.3, 2),
                 "velocidad_agitacion": round(base_va * 0.6, 2),
             },
             "lavado": {
-                "tiempo_ciclo":        round(base_tc, 2),
-                "temperatura_agua":    round(base_ta, 2),
+                "tiempo_ciclo": round(base_tc, 2),
+                "temperatura_agua": round(base_ta, 2),
                 "cantidad_detergente": round(base_cd, 2),
                 "velocidad_agitacion": round(base_va, 2),
             },
             "enjuague": {
-                "tiempo_ciclo":        round(base_tc * 0.7, 2),
-                "temperatura_agua":    round(base_ta * 0.5, 2),
+                "tiempo_ciclo": round(base_tc * 0.7, 2),
+                "temperatura_agua": round(base_ta * 0.5, 2),
                 "cantidad_detergente": 0.0,
                 "velocidad_agitacion": round(base_va * 0.7, 2),
             },
             "centrifugado": {
-                "tiempo_ciclo":        round(base_tc * 0.3, 2),
-                "temperatura_agua":    20.0,
+                "tiempo_ciclo": round(base_tc * 0.3, 2),
+                "temperatura_agua": 20.0,
                 "cantidad_detergente": 0.0,
                 "velocidad_agitacion": round(min(base_va * 1.5, 1200), 2),
             },
@@ -143,9 +145,6 @@ class FuzzyEngine:
         for name, var in {**self._inputs, **self._outputs}.items():
             data[name] = {
                 "universe": var["universe"].tolist(),
-                "terms": {
-                    term: mf.tolist()
-                    for term, mf in var["terms"].items()
-                },
+                "terms": {term: mf.tolist() for term, mf in var["terms"].items()},
             }
         return data

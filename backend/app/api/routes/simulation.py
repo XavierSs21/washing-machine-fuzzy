@@ -33,11 +33,17 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
 
     # Pydantic ya valida ge/le, pero dejamos esto para mensajes en español
     if not (0 <= request.tipo_ropa <= 100):
-        raise HTTPException(status_code=422, detail="tipo_ropa debe estar entre 0 y 100.")
+        raise HTTPException(
+            status_code=422, detail="tipo_ropa debe estar entre 0 y 100."
+        )
     if not (0 <= request.nivel_suciedad <= 100):
-        raise HTTPException(status_code=422, detail="nivel_suciedad debe estar entre 0 y 100.")
+        raise HTTPException(
+            status_code=422, detail="nivel_suciedad debe estar entre 0 y 100."
+        )
     if not (0 <= request.masa_ropa <= 10):
-        raise HTTPException(status_code=422, detail="masa_ropa debe estar entre 0 y 10 kg.")
+        raise HTTPException(
+            status_code=422, detail="masa_ropa debe estar entre 0 y 10 kg."
+        )
 
     try:
         cycles = engine.run(
@@ -46,9 +52,12 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
             masa_ropa=request.masa_ropa,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en el motor difuso: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error en el motor difuso: {str(e)}"
+        )
 
     try:
+
         def to_cycle(nombre: str) -> CycleResult:
             c = cycles[nombre]
             return CycleResult(
@@ -60,12 +69,17 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
                 duracion_animacion=c["duracion_animacion"],
             )
 
-        prelavado    = to_cycle("prelavado")
-        lavado       = to_cycle("lavado")
-        enjuague     = to_cycle("enjuague")
+        prelavado = to_cycle("prelavado")
+        lavado = to_cycle("lavado")
+        enjuague = to_cycle("enjuague")
         centrifugado = to_cycle("centrifugado")
 
-        t_total = prelavado.tiempo_ciclo + lavado.tiempo_ciclo + enjuague.tiempo_ciclo + centrifugado.tiempo_ciclo
+        t_total = (
+            prelavado.tiempo_ciclo
+            + lavado.tiempo_ciclo
+            + enjuague.tiempo_ciclo
+            + centrifugado.tiempo_ciclo
+        )
         tiempo_total = round(t_total, 2)
 
         return SimulationResponse(
@@ -78,6 +92,5 @@ def simulate(request: SimulationRequest) -> SimulationResponse:
 
     except KeyError as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"El motor no retornó el campo esperado: {str(e)}"
+            status_code=500, detail=f"El motor no retornó el campo esperado: {str(e)}"
         )

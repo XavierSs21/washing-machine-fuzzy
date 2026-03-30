@@ -1,4 +1,3 @@
-
 from app.core.fuzzy.engine import FuzzyEngine
 
 engine = FuzzyEngine()
@@ -124,8 +123,13 @@ def test_output_structure():
     r = run(50, 50, 5)
     for cycle in ["prelavado", "lavado", "enjuague", "centrifugado"]:
         assert cycle in r
-        for key in ["tiempo_ciclo", "temperatura_agua", "cantidad_detergente",
-                    "velocidad_agitacion", "duracion_animacion"]:
+        for key in [
+            "tiempo_ciclo",
+            "temperatura_agua",
+            "cantidad_detergente",
+            "velocidad_agitacion",
+            "duracion_animacion",
+        ]:
             assert key in r[cycle], f"Falta '{key}' en {cycle}"
 
 

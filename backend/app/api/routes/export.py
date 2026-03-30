@@ -27,8 +27,7 @@ def export_fis() -> FileResponse:
         fis_content = generate_fis()
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Error al generar el archivo .fis: {str(e)}"
+            status_code=500, detail=f"Error al generar el archivo .fis: {str(e)}"
         )
 
     try:
@@ -39,8 +38,7 @@ def export_fis() -> FileResponse:
         tmp.close()
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Error al escribir el archivo temporal: {str(e)}"
+            status_code=500, detail=f"Error al escribir el archivo temporal: {str(e)}"
         )
 
     return FileResponse(

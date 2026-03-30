@@ -7,7 +7,6 @@ import CycleBar from "./components/CycleBar";
 import ControlButtons from "./components/ControlButtons";
 import TimerDisplay from "./components/TimerDisplay";
 import StatusHeader from "./components/StatusHeader";
-import DoneBanner from "./components/DoneBanner";
 import CycleChart from "./components/Charts/CycleChart";
 import MembershipChart from "./components/Charts/MembershipChart";
 import OutputChart from "./components/Charts/OutputChart";
@@ -64,7 +63,6 @@ export default function App() {
               value={masa} min={0} max={10} step={0.5} onChange={handleMasaChange} color="#8B5CF6" />
           </div>
 
-          {/* Cycle bars */}
           {/* Ciclos */}
           <div style={{
             background: "rgba(255,255,255,0.025)",
@@ -87,7 +85,6 @@ export default function App() {
               ))}
             </div>
           </div>
-
         </div>
 
         {/* ── Center column ── */}
@@ -142,7 +139,72 @@ export default function App() {
         </div>
       </div>
 
-      {allDone && <DoneBanner totalTime={sim.simResult?.tiempo_total} />}
+      {/* ── Bottom: Done banner + Export button + Close ── */}
+      {allDone && (
+        <div style={{
+          display: "flex", alignItems: "center",
+          gap: 12, margin: "0 20px 16px", flexShrink: 0,
+          height: 52,
+        }}>
+          {/* Banner */}
+          <div style={{
+            flex: 1, height: "100%",
+            background: "rgba(61,192,144,0.08)",
+            border: "1px solid rgba(61,192,144,0.25)",
+            borderRadius: 12, padding: "0 20px",
+            display: "flex", alignItems: "center", gap: 14,
+          }}>
+            <div style={{
+              width: 10, height: 10, borderRadius: "50%",
+              background: "#3dc090", boxShadow: "0 0 12px rgba(61,192,144,0.6)",
+              flexShrink: 0,
+            }} />
+            <div>
+              <div style={{ fontSize: 12, color: "#3dc090", fontFamily: "monospace", letterSpacing: "0.1em", fontWeight: 600 }}>
+                WASH CYCLE COMPLETE
+              </div>
+              <div style={{ fontSize: 11, color: "#666", fontFamily: "monospace", marginTop: 2 }}>
+                All 4 cycles finished · {sim.simResult?.tiempo_total} min total
+              </div>
+            </div>
+          </div>
+
+          {/* Export button */}
+          <a
+            href="http://localhost:8000/api/export/fis"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              height: "100%", padding: "0 20px",
+              background: "rgba(61,192,144,0.08)",
+              border: "1px solid rgba(61,192,144,0.25)",
+              borderRadius: 12, color: "#3dc090",
+              fontSize: 11, fontFamily: "monospace",
+              letterSpacing: "0.1em", textDecoration: "none",
+              fontWeight: 600, whiteSpace: "nowrap",
+              display: "flex", alignItems: "center",
+            }}
+          >
+            ⬇ Export .fis
+          </a>
+
+          {/* Close button */}
+          <button
+            onClick={sim.reset}
+            style={{
+              height: "100%", aspectRatio: "1",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 12, color: "#555",
+              fontSize: 16, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }

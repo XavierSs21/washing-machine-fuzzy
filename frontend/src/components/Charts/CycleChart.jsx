@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { CYCLES } from "../../hooks/canvasUtils";
 
 const PANEL = {
   background: "rgba(255,255,255,0.025)",
@@ -16,30 +17,25 @@ const LABEL = {
 
 const DOT_STYLE = { r: 0 };
 
-export default function CycleChart() {
-  const [data, setData]     = useState([]);
-  const [connected, setConnected] = useState(false);
-  const socketRef = useRef(null);
+// Recibe props de App.jsx — no necesita WebSocket propio
+export default function CycleChart({ currentCycleIdx, simResult, isRunning }) {
+  const [data, setData] = useState([]);
 
   useEffect(() => {
-    try {
-      const ws = new WebSocket("ws://localhost:5000/ws");
-      socketRef.current = ws;
+    if (!isRunning || currentCycleIdx < 0 || !simResult) return;
+    const key = CYCLES[currentCycleIdx];
+    const cycle = simResult[key];
+    if (!cycle) return;
+    setData(prev => [...prev.slice(-60), {
+      time:        prev.length,
+      temperature: cycle.temperatura_agua,
+      speed:       cycle.velocidad_agitacion,
+    }]);
+  }, [currentCycleIdx, isRunning]);
 
-      ws.onopen  = () => setConnected(true);
-      ws.onclose = () => setConnected(false);
-      ws.onerror = () => setConnected(false);
-
-      ws.onmessage = (e) => {
-        try {
-          const d = JSON.parse(e.data);
-          setData(prev => [...prev.slice(-60), d]); // keep last 60 points
-        } catch {}
-      };
-    } catch {}
-
-    return () => socketRef.current?.close();
-  }, []);
+  useEffect(() => {
+    if (!isRunning && !simResult) setData([]);
+  }, [isRunning, simResult]);
 
   const isEmpty = data.length === 0;
 
@@ -50,11 +46,11 @@ export default function CycleChart() {
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div style={{
             width: 6, height: 6, borderRadius: "50%",
-            background: connected ? "#3dc090" : "#333",
-            boxShadow: connected ? "0 0 6px rgba(61,192,144,0.7)" : "none",
+            background: isRunning ? "#3dc090" : "#333",
+            boxShadow: isRunning ? "0 0 6px rgba(61,192,144,0.7)" : "none",
           }} />
-          <span style={{ fontSize: 9, color: connected ? "#3dc090" : "#444", fontFamily: "monospace", letterSpacing: "0.08em" }}>
-            {connected ? "WS LIVE" : "OFFLINE"}
+          <span style={{ fontSize: 9, color: isRunning ? "#3dc090" : "#444", fontFamily: "monospace", letterSpacing: "0.08em" }}>
+            {isRunning ? "RUNNING" : "IDLE"}
           </span>
         </div>
       </div>
@@ -62,7 +58,7 @@ export default function CycleChart() {
       {isEmpty ? (
         <div style={{ height: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <span style={{ fontSize: 11, color: "#333", fontFamily: "monospace", letterSpacing: "0.1em" }}>
-            {connected ? "WAITING FOR DATA..." : "NO CONNECTION"}
+            {isRunning ? "WAITING FOR DATA..." : "START TO SEE DATA"}
           </span>
         </div>
       ) : (

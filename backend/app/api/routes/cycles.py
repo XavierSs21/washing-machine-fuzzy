@@ -3,6 +3,7 @@ import asyncio
 import json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.models.simulation import SimulationResponse
+from app.core.fuzzy.engine import FuzzyEngine
 
 router = APIRouter()
 
@@ -38,7 +39,17 @@ def get_cycles() -> list[dict]:
 
     return CYCLES_METADATA
 
+_engine = FuzzyEngine()
 
+@router.get(
+    "/membership",
+    summary="Obtener funciones de membresía",
+    description="Retorna los universos y funciones de membresía de todas las variables.",
+)
+def get_membership() -> dict:
+    return _engine.get_membership_data()
+    
+    
 @router.websocket("/ws/simulation")
 async def websocket_simulation(websocket: WebSocket):
 

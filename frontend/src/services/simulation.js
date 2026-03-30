@@ -15,9 +15,3 @@ export const runSimulation = (tipo_ropa, nivel_suciedad, masa_ropa) =>
 export const getCycles = () =>
   api.get('/api/cycles').then(r => r.data)
 
-/**
- * GET /api/membership
- * Retorna funciones de membresía para los charts de Aaly
- */
-export const getMembership = () =>
-  api.get('/api/membership').then(r => r.data)

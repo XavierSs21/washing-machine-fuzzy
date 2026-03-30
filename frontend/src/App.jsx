@@ -132,7 +132,11 @@ export default function App() {
               metrics={liveMetrics}
             />
           )}
-          <CycleChart />
+          <CycleChart
+            currentCycleIdx={sim.currentCycleIdx}
+            simResult={sim.simResult}
+            isRunning={sim.isRunning}
+          />
           <MembershipChart />
           {sim.simResult && <OutputChart simulationData={sim.simResult} />}
         </div>

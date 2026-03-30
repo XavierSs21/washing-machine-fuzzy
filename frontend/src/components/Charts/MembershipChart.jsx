@@ -17,24 +17,29 @@ const LINE_COLORS = ["#5C7AEA", "#f0a030", "#3dc090", "#8B5CF6", "#3DBBF0", "#e0
 const DOT_STYLE   = { r: 0 };
 
 export default function MembershipChart() {
-  const [data, setData]           = useState({});
+  const [data, setData]            = useState({});
   const [selectedVar, setSelected] = useState("");
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState(false);
+  const [loading, setLoading]      = useState(true);
+  const [error, setError]          = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/membership")
-      .then(r => r.json())
+    fetch("http://localhost:8000/api/membership")
+      .then(r => {
+        if (!r.ok) throw new Error("404");
+        return r.json();
+      })
       .then(json => {
-        setData(json);
-        setSelected(Object.keys(json)[0] ?? "");
+        if (json && typeof json === "object") {
+          setData(json);
+          setSelected(Object.keys(json)[0] ?? "");
+        }
         setLoading(false);
       })
       .catch(() => { setError(true); setLoading(false); });
   }, []);
 
-  const variable   = data[selectedVar];
-  const chartData  = variable
+  const variable  = data[selectedVar];
+  const chartData = variable
     ? variable.universe.map((x, i) => {
         const obj = { x };
         Object.keys(variable.terms).forEach(t => { obj[t] = variable.terms[t][i]; });
@@ -75,6 +80,7 @@ export default function MembershipChart() {
         </div>
       )}
 
+      {/* Muestra unavailable si Aaly aún no implementa el endpoint — no truena la app */}
       {error && (
         <div style={{ height: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <span style={{ fontSize: 11, color: "#3a2020", fontFamily: "monospace", letterSpacing: "0.1em" }}>API UNAVAILABLE</span>

@@ -611,7 +611,7 @@ export default function App() {
     } catch (err) {
       console.error("Error:", err);
     }
-  }, [tipoRopa, suciedad, masa, startCycle]); // ← ADD startCycle HERE
+  }, [tipoRopa, suciedad, masa, startCycle]);
 
   const handlePause = () => {
     setIsPaused(p => { pausedRef.current = !p; return !p; });

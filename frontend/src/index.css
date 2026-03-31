@@ -55,7 +55,6 @@ body {
 }
 
 #root {
-  width: 1126px;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -108,4 +107,25 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Custom scrollbar styles for dark theme */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(92, 122, 234, 0.4);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.025);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(92, 122, 234, 0.6);
 }

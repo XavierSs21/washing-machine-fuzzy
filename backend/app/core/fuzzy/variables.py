@@ -1,74 +1,129 @@
+"""
+variables.py — Define las variables de entrada/salida y funciones de membresía.
+
+Implementación manual con numpy (sin scikit-fuzzy).
+Cada variable tiene un universo de discurso (array) y términos lingüísticos
+con funciones de membresía triangulares precalculadas.
+"""
+
 import numpy as np
-import skfuzzy as fuzz
-from skfuzzy import control as ctrl
 
 
-def build_variables():
+def trimf(x: np.ndarray, params: list) -> np.ndarray:
     """
-    Define todas las variables de entrada y salida del sistema difuso.
-    Retorna un dict con los Antecedents y Consequents de skfuzzy.
+    Función de membresía triangular vectorizada.
+
+    Args:
+        x:      Array del universo de discurso.
+        params: [a, b, c] donde a <= b <= c son los vértices del triángulo.
+
+    Returns:
+        Array de grados de membresía (0–1).
+    """
+    a, b, c = params
+    mf = np.zeros_like(x, dtype=float)
+
+    # Rampa ascendente: a < x <= b
+    if b != a:
+        mask_up = (x > a) & (x <= b)
+        mf[mask_up] = (x[mask_up] - a) / (b - a)
+
+    # Rampa descendente: b < x < c
+    if c != b:
+        mask_down = (x > b) & (x < c)
+        mf[mask_down] = (c - x[mask_down]) / (c - b)
+
+    # Pico: x == b siempre es 1 (cubre caso a == b o b == c)
+    mf[x == b] = 1.0
+
+    return mf
+
+
+def build_variables() -> dict:
+    """
+    Construye todas las variables difusas con sus universos y MFs precalculadas.
+
+    Returns:
+        dict con claves "inputs" y "outputs", cada una conteniendo un dict
+        de variables. Cada variable es un dict con "universe" (np.ndarray)
+        y "terms" (dict de nombre → np.ndarray de membresía).
     """
 
     # ── ENTRADAS ──────────────────────────────────────────────────────────
-    tipo_ropa = ctrl.Antecedent(np.arange(0, 101, 1), "tipo_ropa")
-    nivel_suciedad = ctrl.Antecedent(np.arange(0, 101, 1), "nivel_suciedad")
-    masa_ropa = ctrl.Antecedent(np.arange(0, 10.1, 0.1), "masa_ropa")
+    u_tipo = np.arange(0, 101, 1, dtype=float)
+    u_suciedad = np.arange(0, 101, 1, dtype=float)
+    u_masa = np.arange(0, 10.1, 0.1)
 
-    # tipo_ropa: 0=delicada, 50=normal, 100=resistente
-    tipo_ropa["delicada"]   = fuzz.trimf(tipo_ropa.universe,   [0,   0,  50])
-    tipo_ropa["normal"]     = fuzz.trimf(tipo_ropa.universe,   [0,  50, 100])
-    tipo_ropa["resistente"] = fuzz.trimf(tipo_ropa.universe,   [50, 100, 100])
-
-    # nivel_suciedad
-    nivel_suciedad["baja"]  = fuzz.trimf(nivel_suciedad.universe, [0,   0,  50])
-    nivel_suciedad["media"] = fuzz.trimf(nivel_suciedad.universe, [0,  50, 100])
-    nivel_suciedad["alta"]  = fuzz.trimf(nivel_suciedad.universe, [50, 100, 100])
-
-    # masa_ropa
-    masa_ropa["ligera"] = fuzz.trimf(masa_ropa.universe, [0,   0,   5])
-    masa_ropa["media"]  = fuzz.trimf(masa_ropa.universe, [0,   5,  10])
-    masa_ropa["pesada"] = fuzz.trimf(masa_ropa.universe, [5,  10,  10])
-
-    # ── SALIDAS ───────────────────────────────────────────────────────────
-    tiempo_ciclo = ctrl.Consequent(np.arange(0, 61, 1), "tiempo_ciclo", defuzzify_method="centroid")
-    temperatura_agua = ctrl.Consequent(np.arange(20, 91, 1), "temperatura_agua", defuzzify_method="centroid")
-    cantidad_detergente = ctrl.Consequent(np.arange(0, 201, 1), "cantidad_detergente", defuzzify_method="centroid")
-    velocidad_agitacion = ctrl.Consequent(np.arange(0, 1201, 1), "velocidad_agitacion", defuzzify_method="centroid")
-
-    # tiempo_ciclo
-    tiempo_ciclo["muy_corto"] = fuzz.trimf(tiempo_ciclo.universe, [0,   0,  15])
-    tiempo_ciclo["corto"]     = fuzz.trimf(tiempo_ciclo.universe, [0,  15,  30])
-    tiempo_ciclo["medio"]     = fuzz.trimf(tiempo_ciclo.universe, [15, 30,  45])
-    tiempo_ciclo["largo"]     = fuzz.trimf(tiempo_ciclo.universe, [30, 45,  60])
-    tiempo_ciclo["muy_largo"] = fuzz.trimf(tiempo_ciclo.universe, [45, 60,  60])
-
-    # temperatura_agua
-    temperatura_agua["fria"]        = fuzz.trimf(temperatura_agua.universe, [20, 20, 40])
-    temperatura_agua["tibia"]       = fuzz.trimf(temperatura_agua.universe, [20, 40, 60])
-    temperatura_agua["caliente"]    = fuzz.trimf(temperatura_agua.universe, [40, 60, 80])
-    temperatura_agua["muy_caliente"]= fuzz.trimf(temperatura_agua.universe, [60, 90, 90])
-
-    # cantidad_detergente
-    cantidad_detergente["poca"]  = fuzz.trimf(cantidad_detergente.universe, [0,    0,  100])
-    cantidad_detergente["media"] = fuzz.trimf(cantidad_detergente.universe, [0,  100,  200])
-    cantidad_detergente["mucha"] = fuzz.trimf(cantidad_detergente.universe, [100, 200, 200])
-
-    # velocidad_agitacion
-    velocidad_agitacion["baja"]     = fuzz.trimf(velocidad_agitacion.universe, [0,    0,   400])
-    velocidad_agitacion["media"]    = fuzz.trimf(velocidad_agitacion.universe, [0,   400,  800])
-    velocidad_agitacion["alta"]     = fuzz.trimf(velocidad_agitacion.universe, [400, 800, 1200])
-    velocidad_agitacion["muy_alta"] = fuzz.trimf(velocidad_agitacion.universe, [800, 1200, 1200])
-
-    return {
-        "inputs": {
-            "tipo_ropa": tipo_ropa,
-            "nivel_suciedad": nivel_suciedad,
-            "masa_ropa": masa_ropa,
+    inputs = {
+        "tipo_ropa": {
+            "universe": u_tipo,
+            "terms": {
+                "delicada":   trimf(u_tipo, [0, 0, 50]),
+                "normal":     trimf(u_tipo, [0, 50, 100]),
+                "resistente": trimf(u_tipo, [50, 100, 100]),
+            },
         },
-        "outputs": {
-            "tiempo_ciclo": tiempo_ciclo,
-            "temperatura_agua": temperatura_agua,
-            "cantidad_detergente": cantidad_detergente,
-            "velocidad_agitacion": velocidad_agitacion,
+        "nivel_suciedad": {
+            "universe": u_suciedad,
+            "terms": {
+                "baja":  trimf(u_suciedad, [0, 0, 50]),
+                "media": trimf(u_suciedad, [0, 50, 100]),
+                "alta":  trimf(u_suciedad, [50, 100, 100]),
+            },
+        },
+        "masa_ropa": {
+            "universe": u_masa,
+            "terms": {
+                "ligera": trimf(u_masa, [0, 0, 5]),
+                "media":  trimf(u_masa, [0, 5, 10]),
+                "pesada": trimf(u_masa, [5, 10, 10]),
+            },
         },
     }
+
+    # ── SALIDAS ───────────────────────────────────────────────────────────
+    u_tiempo = np.arange(0, 61, 1, dtype=float)
+    u_temp = np.arange(20, 91, 1, dtype=float)
+    u_detergente = np.arange(0, 201, 1, dtype=float)
+    u_agitacion = np.arange(0, 1201, 1, dtype=float)
+
+    outputs = {
+        "tiempo_ciclo": {
+            "universe": u_tiempo,
+            "terms": {
+                "muy_corto": trimf(u_tiempo, [0, 0, 15]),
+                "corto":     trimf(u_tiempo, [0, 15, 30]),
+                "medio":     trimf(u_tiempo, [15, 30, 45]),
+                "largo":     trimf(u_tiempo, [30, 45, 60]),
+                "muy_largo": trimf(u_tiempo, [45, 60, 60]),
+            },
+        },
+        "temperatura_agua": {
+            "universe": u_temp,
+            "terms": {
+                "fria":          trimf(u_temp, [20, 20, 40]),
+                "tibia":         trimf(u_temp, [20, 40, 60]),
+                "caliente":      trimf(u_temp, [40, 60, 80]),
+                "muy_caliente":  trimf(u_temp, [60, 90, 90]),
+            },
+        },
+        "cantidad_detergente": {
+            "universe": u_detergente,
+            "terms": {
+                "poca":  trimf(u_detergente, [0, 0, 100]),
+                "media": trimf(u_detergente, [0, 100, 200]),
+                "mucha": trimf(u_detergente, [100, 200, 200]),
+            },
+        },
+        "velocidad_agitacion": {
+            "universe": u_agitacion,
+            "terms": {
+                "baja":     trimf(u_agitacion, [0, 0, 400]),
+                "media":    trimf(u_agitacion, [0, 400, 800]),
+                "alta":     trimf(u_agitacion, [400, 800, 1200]),
+                "muy_alta": trimf(u_agitacion, [800, 1200, 1200]),
+            },
+        },
+    }
+
+    return {"inputs": inputs, "outputs": outputs}

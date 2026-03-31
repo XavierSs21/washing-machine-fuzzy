@@ -29,32 +29,35 @@ export default function StatusHeader({ isRunning, isPaused, allDone, speed, onSp
       </div>
 
       {/* Controles de velocidad */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ fontSize: 10, color: "#555", fontFamily: "monospace" }}>SPEED</span>
-        {SPEEDS.map((s) => (
-          <button
-            key={s}
-            onClick={() => onSpeedChange(s)}
-            style={{
-              padding: "3px 8px",
-              borderRadius: 8,
-              border: speed === s
-                ? "1px solid rgba(92,122,234,0.7)"
-                : "1px solid rgba(255,255,255,0.08)",
-              background: speed === s
-                ? "rgba(92,122,234,0.15)"
-                : "rgba(255,255,255,0.03)",
-              color: speed === s ? "#5C7AEA" : "#555",
-              fontSize: 10,
-              fontFamily: "monospace",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
-          >
-            {s}x
-          </button>
-        ))}
-      </div>
+      {/* Controles de velocidad solo si está corriendo o pausado */}
+      {(isRunning || isPaused) && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 10, color: "#555", fontFamily: "monospace" }}>SPEED</span>
+          {SPEEDS.map((s) => (
+            <button
+              key={s}
+              onClick={() => onSpeedChange(s)}
+              style={{
+                padding: "3px 8px",
+                borderRadius: 8,
+                border: speed === s
+                  ? "1px solid rgba(92,122,234,0.7)"
+                  : "1px solid rgba(255,255,255,0.08)",
+                background: speed === s
+                  ? "rgba(92,122,234,0.15)"
+                  : "rgba(255,255,255,0.03)",
+                color: speed === s ? "#5C7AEA" : "#555",
+                fontSize: 10,
+                fontFamily: "monospace",
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+            >
+              {s}x
+            </button>
+          ))}
+        </div>
+      )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         {/* Estado de la máquina */}

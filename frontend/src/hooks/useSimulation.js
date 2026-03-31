@@ -1,21 +1,26 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { CYCLES } from "./canvasUtils";
 import { runSimulation } from "../services/simulation";
 
-export function useSimulation() {
-  const [isRunning, setIsRunning]             = useState(false);
-  const [isPaused, setIsPaused]               = useState(false);
-  const [cycleProgress, setCycleProgress]     = useState(0);
+export function useSimulation(speed = 1) {
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [cycleProgress, setCycleProgress] = useState(0);
   const [currentCycleIdx, setCurrentCycleIdx] = useState(-1);
-  const [simResult, setSimResult]             = useState(null);
-  const [doneCycles, setDoneCycles]           = useState([]);
-  const [elapsedTime, setElapsedTime]         = useState(0);
+  const [simResult, setSimResult] = useState(null);
+  const [doneCycles, setDoneCycles] = useState([]);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [cycleTransitionTick, setCycleTransitionTick] = useState(0);
 
   const simIntervalRef = useRef(null);
-  const pausedRef      = useRef(false);
+  const pausedRef = useRef(false);
+  const speedRef = useRef(speed); // <--- ref para velocidad dinámica
 
-  // Avanza el progreso visual de cada ciclo usando duracion_animacion del backend
+  // Mantener speed actualizado en tiempo real
+  useEffect(() => {
+    speedRef.current = speed;
+  }, [speed]);
+
   const startCycle = useCallback((idx, result) => {
     if (simIntervalRef.current) clearInterval(simIntervalRef.current);
     setCycleProgress(0);
@@ -30,28 +35,30 @@ export function useSimulation() {
 
     setCurrentCycleIdx(idx);
     const key = CYCLES[idx];
-
-    // duracion_animacion viene del backend en segundos — lo convertimos a ms
     const dur = (result[key].duracion_animacion ?? result[key].tiempo_ciclo ?? 5) * 1000;
     let elapsed = 0;
+    const TICK_BASE_MS = 80; // base interval en ms
 
     simIntervalRef.current = setInterval(() => {
       if (pausedRef.current) return;
-      elapsed += 80;
-      setElapsedTime((t) => t + 0.08);
+
+      // Avanzar elapsed según speed actual
+      const currentSpeed = speedRef.current;
+      elapsed += TICK_BASE_MS * currentSpeed;
+      setElapsedTime((t) => t + (TICK_BASE_MS * currentSpeed) / 1000);
       setCycleProgress(Math.min((elapsed / dur) * 100, 100));
+
       if (elapsed >= dur) {
         clearInterval(simIntervalRef.current);
         setDoneCycles((d) => [...d, key]);
         setCycleTransitionTick((t) => t + 1);
         setTimeout(() => startCycle(idx + 1, result), 650);
       }
-    }, 80);
+    }, TICK_BASE_MS);
   }, []);
 
   const start = useCallback(async (tipoRopa, suciedad, masa) => {
     try {
-      // Llama al backend real
       const result = await runSimulation(tipoRopa, suciedad, masa);
 
       setSimResult(result);

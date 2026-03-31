@@ -56,7 +56,6 @@ export default function App() {
         allDone={allDone}
         currentCycle={currentCycle}
         liveMetrics={liveMetrics}
-        // 🆕 props de velocidad
         speed={speed}
         onSpeedChange={setSpeed}
       />
